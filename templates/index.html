@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.min.js"></script>
+    <title>Chatting App</title>
+    <style>
+      body {
+        font-family: "Arial", sans-serif;
+        background-color: #f0f0f0;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+      }
+
+      form {
+        display: flex;
+        margin-top: 30px; /* Add margin top */
+        margin: 0 auto; /* Center align horizontally */
+        flex-direction: column;
+        width: 80%; /* Set width to 80% of the page */
+        height: 90%; /* Set height to 70% of the page */
+        align-items: center;
+        margin-bottom: 20px;
+      }
+
+      input {
+        margin: 10px 0;
+        padding: 10px;
+        font-size: 16px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+      }
+
+      button {
+        padding: 10px;
+        font-size: 16px;
+        background-color: #4caf50;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+
+      button:hover {
+        background-color: #45a049;
+      }
+
+      ul {
+        list-style-type: none;
+        padding: 0;
+        margin: 0;
+        width: 80%;
+        overflow-y: auto; /* Enable vertical scrolling */
+        max-height: 300px; /* Set a maximum height for the messages */
+      }
+
+      li {
+        background-color: white;
+        padding: 10px;
+        margin: 5px;
+        border-radius: 5px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        border: 1px solid #ccc; /* Add border */
+        text-decoration: underline; /* Add underline */
+      }
+
+      img {
+        max-width: 60%;
+        height: auto;
+        border-radius: 5px;
+      }
+
+      #logo {
+      }
+    </style>
+  </head>
+  <body>
+    <h1 id="logo">Fly - The kids messenger</h1>
+    <ul id="messages" style="width: 90%; height: 90%; overflow-y: scroll"></ul>
+    <form id="form">
+      <input type="text" id="input" placeholder="Enter Text Message" />
+      <input type="file" id="image" accept="image/*" />
+      <button type="submit">Send Message</button>
+    </form>
+
+    <script>
+      let socket = io();
+      let form = document.getElementById("form");
+      let input = document.getElementById("input");
+      let imageInput = document.getElementById("image");
+
+      function scrollToTop() {
+        const messagesList = document.getElementById("messages");
+        messagesList.scrollTop = 0;
+      }
+
+      form.addEventListener("submit", (event) => {
+        event.preventDefault();
+        let message = input.value;
+        socket.emit("message", message);
+        input.value = "";
+      });
+
+      imageInput.addEventListener("change", (e) => {
+        let file = imageInput.files[0];
+        let reader = new FileReader();
+        reader.addEventListener("load", () => {
+          socket.emit("image", reader.result);
+        });
+        reader.readAsDataURL(file);
+      });
+
+      socket.on("message", (message) => {
+        let li = document.createElement("li");
+        li.textContent = message;
+        document.getElementById("messages").prepend(li);
+        scrollToTop();
+      });
+
+      socket.on("image", (image_data) => {
+        let li = document.createElement("li");
+        let img = document.createElement("img");
+        img.src = image_data;
+        img.width = 250;
+        img.height = 250;
+        li.appendChild(img);
+        scrollToTop();
+        document.getElementById("messages").prepend(li);
+      });
+
+      socket.on("unsafe", () => {
+        alert("Behave Yourself Don't Make life Shit");
+      });
+    </script>
+  </body>
+</html>
