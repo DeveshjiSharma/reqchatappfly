@@ -7,8 +7,8 @@ from io import BytesIO
 import base64
 import os
 
-account_sid = 'AC2fd3f267b1d594906760f5de092154f8'
-auth_token = '2a534075115969f522bec95784930275'
+account_sid = ''
+auth_token = ''
 client = Client(account_sid, auth_token)
 
 app = Flask(__name__)
